@@ -1,9 +1,13 @@
 from django.urls import path
-from .views import StudentAPIView, GradeAPIView
+from . import views
 
 urlpatterns = [
-    path('student/', StudentAPIView.as_view(), name='student'),
-    path('student/<int:id>/', StudentAPIView.as_view(), name='student'),
-    path('grade/', GradeAPIView.as_view(), name='grade'),
-    path('grade/<int:id>/', GradeAPIView.as_view(), name='grade'),
+    path("students/", views.StudentAPIView.as_view(), name="student"),
+    path("students/<int:id>/", views.StudentAPIView.as_view, name="student"),
+
+    path("subjects/", views.SubjectAPIView.as_view(), name="subjects"),
+    path("subjects/<int:id>", views.SubjectAPIView.as_view(), name="subjects"),
+
+    path("enrollments/", views.EnrollmentAPIView.as_view(), name="enrollments"),
+    path("enrollments/<int:id>", views.EnrollmentAPIView.as_view(), name="enrollments")
 ]
