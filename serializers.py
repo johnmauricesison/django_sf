@@ -1,37 +1,25 @@
-from rest_framework import serializers
-from .models import Student, Subject, Enrollment
 
-class SubjectSerializer(serializers.ModelSerializer):
+from rest_framework import serializers
+from .models import Student, Grade
+
+class GradeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Subject
-        fields = '__all__'
+        model = Grade
+        fields = ['id', 'student','subject', 'score']
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    grades = GradeSerializer(many=True, read_only=True)
+    average_grade = serializers.SerializerMethodField()
+
     class Meta:
         model = Student
-        fields = '__all__'
-
-class EnrollmentSerializer(serializers.ModelSerializer):
-    student = serializers.PrimaryKeyRelatedField(queryset=Student.objects.all())
-    subjects = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), many=True)
-    
-    total_tuition_fee = serializers.SerializerMethodField()
-    discounted_tuition_fee = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
+        fields = ['id', 'name', 'email', 'grades', 'average_grade']
 
 
-    class Meta:
-        model = Enrollment
-        fields = ['id', 'student', 'subjects', 'date_enrolled', 'mode_of_payment', 'total_tuition_fee', 'discounted_tuition_fee', 'discount']
+    def get_average_grade(self,obj):
+        grades = obj.grades.all()
+        if grades:
+            return sum(grade.score for grade in grades) / grades.count()
+        return 0.0
 
-    def get_total_tuition_fee(self, obj):
-        return obj.total_tuition_fee()
-    
-    def get_discounted_tuition_fee(self,obj):
-        return obj.discounted_tuition_fee()
-
-
-    def discount(self, obj):
-        return obj.final()
-    
